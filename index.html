@@ -14,13 +14,13 @@ body{
   overflow:hidden;
 }
 
-/* ===== TÍTULO ===== */
+/* ===== TITULO ===== */
 h2{
   margin:6px 0 4px 0;
   font-size:22px;
 }
 
-/* ===== PANEL USUARIO ===== */
+/* ===== PANEL USUARIO (PC) ===== */
 #loginBox{
   position:fixed;
   top:10px;
@@ -61,6 +61,32 @@ select,input,button{
   transform:translate(-50%,-50%);
   accent-color:lime;
 }
+
+/* ===== RESPONSIVE MOBILE / TABLET ===== */
+@media (max-width: 768px) {
+
+  body{
+    overflow:auto;
+  }
+
+  #loginBox{
+    position:relative;
+    top:auto;
+    left:auto;
+    margin:10px auto;
+    width:90%;
+    text-align:center;
+  }
+
+  select,input,button{
+    width:100%;
+  }
+
+  #container{
+    margin-top:10px;
+  }
+}
+
 </style>
 </head>
 
@@ -68,7 +94,7 @@ select,input,button{
 
 <h2>Marcador de Espíritus</h2>
 
-<!-- PANEL -->
+<!-- PANEL USUARIO -->
 <div id="loginBox">
   👤 Usuario:
   <select id="userSelect"></select>
@@ -141,7 +167,7 @@ userSelect.addEventListener("change",()=>{
   loadData();
 });
 
-/* ================= CREAR USUARIO ================= */
+/* ================= CREATE USER ================= */
 
 function addUser(){
   const name = newUser.value.trim();
@@ -159,7 +185,7 @@ function addUser(){
   loadData();
 }
 
-/* ================= DATA ================= */
+/* ================= LOAD DATA ================= */
 
 function loadData(){
   const key = "spirits_" + currentUser;
