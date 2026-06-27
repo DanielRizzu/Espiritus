@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Lista de Espiritus para el Folnite</title>
+
+<style>
+body {
+  background:#111;
+  color:white;
+  text-align:center;
+  font-family:Arial;
+}
+
+#container {
+  position:relative;
+  display:inline-block;
+}
+
+#img {
+  width:900px;
+}
+
+.spirit {
+  position:absolute;
+  width:18px;
+  height:18px;
+  transform:translate(-50%, -50%);
+  accent-color:lime;
+}
+</style>
+</head>
+
+<body>
+
+<h2>El Marcador de Esperitus definitivo del Dani -_- </h2>
+
+<div id="stats"></div>
+
+<div id="container">
+  <img id="img" src="pokemones.png">
+</div>
+
+<script>
+
+const COLS = 12;
+const ROWS = 9;
+const TOTAL = COLS * ROWS;
+
+// progreso
+let data = JSON.parse(localStorage.getItem("spirits")) 
+          || Array(TOTAL).fill(false);
+
+const container = document.getElementById("container");
+
+/* Aca Metemos Configuracion */
+
+/* Filas (Y) */
+const rowConfig = [
+  16, 26.4, 37, 47, 57, 68, 78, 88, 98
+];
+
+/* Columnas (X) */
+const colConfig = [
+  7, 14, 21.4, 28.5, 35.7, 43, 55, 61.9, 69.3, 76.5, 83.5, 90.5
+];
+
+function create() {
+
+  for (let i = 0; i < TOTAL; i++) {
+
+    const row = Math.floor(i / COLS);
+    const col = i % COLS;
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = "spirit";
+
+    // Posicion Completamente Independiente
+    cb.style.left = colConfig[col] + "%";
+    cb.style.top  = rowConfig[row] + "%";
+
+    cb.checked = data[i];
+
+    cb.addEventListener("change", () => {
+      data[i] = cb.checked;
+      localStorage.setItem("spirits", JSON.stringify(data));
+      update();
+    });
+
+    container.appendChild(cb);
+  }
+}
+
+function update() {
+  const done = data.filter(Boolean).length;
+  document.getElementById("stats").innerText =
+    `Conseguidos: ${done} / ${TOTAL}`;
+}
+
+create();
+update();
+
+</script>
+
+</body>
+</html>
