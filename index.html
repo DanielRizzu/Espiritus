@@ -10,11 +10,42 @@ body{
   color:white;
   text-align:center;
   font-family:Arial;
+  margin:0;
+  overflow:hidden;
 }
 
+/* ===== TÍTULO ===== */
+h2{
+  margin:6px 0 4px 0;
+  font-size:22px;
+}
+
+/* ===== PANEL USUARIO ===== */
+#loginBox{
+  position:fixed;
+  top:10px;
+  left:10px;
+  background:#1a1a1a;
+  padding:10px;
+  border:1px solid #333;
+  border-radius:8px;
+  z-index:9999;
+  text-align:left;
+  width:220px;
+}
+
+select,input,button{
+  padding:5px;
+  margin:5px 0;
+  width:100%;
+  box-sizing:border-box;
+}
+
+/* ===== MAPA ===== */
 #container{
   position:relative;
   display:inline-block;
+  margin-top:5px;
 }
 
 #img{
@@ -22,21 +53,13 @@ body{
   display:block;
 }
 
+/* ===== CHECKBOXES ===== */
 .spirit{
   position:absolute;
   width:18px;
   height:18px;
   transform:translate(-50%,-50%);
   accent-color:lime;
-}
-
-#loginBox{
-  margin:10px;
-}
-
-select,input,button{
-  padding:5px;
-  margin:5px;
 }
 </style>
 </head>
@@ -45,22 +68,25 @@ select,input,button{
 
 <h2>Marcador de Espíritus</h2>
 
+<!-- PANEL -->
 <div id="loginBox">
   👤 Usuario:
   <select id="userSelect"></select>
+
   <input id="newUser" placeholder="nuevo usuario">
   <button onclick="addUser()">Crear</button>
+
+  <div id="stats" style="margin-top:10px;">Cargando...</div>
 </div>
 
-<div id="stats">Cargando...</div>
-
+<!-- MAPA -->
 <div id="container">
   <img id="img" src="pokemones.png">
 </div>
 
 <script>
 
-/* ===================== CONFIG FIJA (NO TOCAR) ===================== */
+/* ================= CONFIG ORIGINAL ================= */
 
 const COLS = 12;
 const ROWS = 9;
@@ -74,14 +100,14 @@ const colConfig = [
   7, 14, 21.4, 28.5, 35.7, 43, 55, 61.9, 69.3, 76.5, 83.5, 90.5
 ];
 
-/* ===================== ELEMENTOS ===================== */
+/* ================= ELEMENTOS ================= */
 
 const container = document.getElementById("container");
 const userSelect = document.getElementById("userSelect");
-const stats = document.getElementById("stats");
 const newUser = document.getElementById("newUser");
+const stats = document.getElementById("stats");
 
-/* ===================== USUARIOS ===================== */
+/* ================= USUARIOS ================= */
 
 let users = JSON.parse(localStorage.getItem("usersList") || "[]");
 let currentUser = localStorage.getItem("currentUser") || "guest";
@@ -91,11 +117,11 @@ if(!users.includes("guest")){
   localStorage.setItem("usersList", JSON.stringify(users));
 }
 
-/* ===================== DATA ===================== */
+/* ================= DATA ================= */
 
 let data = [];
 
-/* ===================== USERS UI ===================== */
+/* ================= USERS ================= */
 
 function loadUsers(){
   userSelect.innerHTML = "";
@@ -115,7 +141,7 @@ userSelect.addEventListener("change",()=>{
   loadData();
 });
 
-/* ===================== CREAR USUARIO ===================== */
+/* ================= CREAR USUARIO ================= */
 
 function addUser(){
   const name = newUser.value.trim();
@@ -133,10 +159,9 @@ function addUser(){
   loadData();
 }
 
-/* ===================== LOAD DATA ===================== */
+/* ================= DATA ================= */
 
 function loadData(){
-
   const key = "spirits_" + currentUser;
   let saved = JSON.parse(localStorage.getItem(key));
 
@@ -145,11 +170,10 @@ function loadData(){
   }
 
   data = saved;
-
   render();
 }
 
-/* ===================== RENDER ===================== */
+/* ================= RENDER ================= */
 
 function render(){
 
@@ -164,7 +188,6 @@ function render(){
     cb.type = "checkbox";
     cb.className = "spirit";
 
-    /* 🔥 TU SISTEMA ORIGINAL (INTACTO) */
     cb.style.left = colConfig[col] + "%";
     cb.style.top = rowConfig[row] + "%";
 
@@ -182,7 +205,7 @@ function render(){
   update();
 }
 
-/* ===================== STATS ===================== */
+/* ================= STATS ================= */
 
 function update(){
   const done = data.filter(Boolean).length;
@@ -190,7 +213,7 @@ function update(){
     `Usuario: ${currentUser} | Conseguidos: ${done} / ${TOTAL}`;
 }
 
-/* ===================== INIT ===================== */
+/* ================= INIT ================= */
 
 loadUsers();
 loadData();
