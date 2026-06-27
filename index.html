@@ -11,15 +11,36 @@ body{
   text-align:center;
   font-family:Arial;
   margin:0;
-  overflow:hidden;
 }
 
+/* ===== TITULO ===== */
 h2{
   margin:6px 0 4px 0;
   font-size:22px;
 }
 
-/* ===== PANEL ===== */
+/* ===== MAPA ===== */
+#container{
+  position:relative;
+  display:inline-block;
+  margin-top:5px;
+}
+
+#img{
+  width:900px;
+  display:block;
+}
+
+/* ===== CHECKBOXES ===== */
+.spirit{
+  position:absolute;
+  width:18px;
+  height:18px;
+  transform:translate(-50%,-50%);
+  accent-color:lime;
+}
+
+/* ===== LOGIN BASE (PC) ===== */
 #loginBox{
   position:fixed;
   top:10px;
@@ -40,7 +61,6 @@ select,input,button{
   box-sizing:border-box;
 }
 
-/* BOTÓN BORRAR */
 #deleteBtn{
   background:#b30000;
   color:white;
@@ -51,38 +71,6 @@ select,input,button{
 #deleteBtn:hover{
   background:#ff0000;
 }
-
-/* ===== MAPA ===== */
-#container{
-  position:relative;
-  display:inline-block;
-  margin-top:5px;
-}
-
-#img{
-  width:900px;
-  display:block;
-}
-
-/* CHECKBOXES */
-.spirit{
-  position:absolute;
-  width:18px;
-  height:18px;
-  transform:translate(-50%,-50%);
-  accent-color:lime;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px){
-  body{ overflow:auto; }
-
-  #loginBox{
-    position:relative;
-    margin:10px auto;
-    width:90%;
-  }
-}
 </style>
 </head>
 
@@ -90,6 +78,12 @@ select,input,button{
 
 <h2>Marcador de Espíritus</h2>
 
+<!-- MAPA -->
+<div id="container">
+  <img id="img" src="pokemones.png">
+</div>
+
+<!-- LOGIN -->
 <div id="loginBox">
   👤 Usuario:
   <select id="userSelect"></select>
@@ -102,13 +96,9 @@ select,input,button{
   <div id="stats" style="margin-top:10px;">Cargando...</div>
 </div>
 
-<div id="container">
-  <img id="img" src="pokemones.png">
-</div>
-
 <script>
 
-/* ===== CONFIG ===== */
+/* ================= CONFIG ================= */
 
 const COLS = 12;
 const ROWS = 9;
@@ -122,28 +112,60 @@ const colConfig = [
   7, 14, 21.4, 28.5, 35.7, 43, 55, 61.9, 69.3, 76.5, 83.5, 90.5
 ];
 
-/* ===== ELEMENTOS ===== */
+/* ================= ELEMENTOS ================= */
 
 const container = document.getElementById("container");
 const userSelect = document.getElementById("userSelect");
 const newUser = document.getElementById("newUser");
 const stats = document.getElementById("stats");
+const loginBox = document.getElementById("loginBox");
 
-/* ===== USERS ===== */
+/* ================= USUARIOS ================= */
 
 let users = JSON.parse(localStorage.getItem("usersList") || "[]");
 let currentUser = localStorage.getItem("currentUser") || "guest";
 
 if(!users.includes("guest")){
   users.push("guest");
-  localStorage.setItem("usersList", JSON.stringify(users));
 }
 
-/* ===== DATA ===== */
+/* ================= DATA ================= */
 
 let data = [];
 
-/* ===== LOAD USERS ===== */
+/* ================= 🔥 RESPONSIVE 1300px FIX ================= */
+
+function checkMobile(){
+
+  const w = window.innerWidth;
+
+  if(w < 1300){
+
+    // 👉 LOGIN ABAJO DEL MAPA
+    container.after(loginBox);
+
+    loginBox.style.position = "relative";
+    loginBox.style.width = "90%";
+    loginBox.style.margin = "10px auto 20px auto";
+    loginBox.style.textAlign = "center";
+
+  } else {
+
+    // 👉 LOGIN ARRIBA IZQUIERDA
+    document.body.appendChild(loginBox);
+
+    loginBox.style.position = "fixed";
+    loginBox.style.top = "10px";
+    loginBox.style.left = "10px";
+    loginBox.style.width = "220px";
+    loginBox.style.margin = "0";
+    loginBox.style.textAlign = "left";
+  }
+}
+
+window.addEventListener("resize", checkMobile);
+
+/* ================= USERS ================= */
 
 function loadUsers(){
   userSelect.innerHTML = "";
@@ -163,7 +185,7 @@ userSelect.addEventListener("change",()=>{
   loadData();
 });
 
-/* ===== ADD USER ===== */
+/* ================= ADD USER ================= */
 
 function addUser(){
   const name = newUser.value.trim();
@@ -181,25 +203,22 @@ function addUser(){
   loadData();
 }
 
-/* ===== DELETE USER ===== */
+/* ================= DELETE USER ================= */
 
 function deleteUser(){
 
   if(currentUser === "guest"){
-    alert("No puedes borrar el usuario guest");
+    alert("No puedes borrar guest");
     return;
   }
 
-  if(!confirm(`¿Seguro que quieres borrar a ${currentUser}?`)) return;
+  if(!confirm(`¿Eliminar usuario ${currentUser}?`)) return;
 
-  // borrar usuario de lista
   users = users.filter(u => u !== currentUser);
   localStorage.setItem("usersList", JSON.stringify(users));
 
-  // borrar su progreso
   localStorage.removeItem("spirits_" + currentUser);
 
-  // cambiar a guest
   currentUser = "guest";
   localStorage.setItem("currentUser", currentUser);
 
@@ -207,9 +226,10 @@ function deleteUser(){
   loadData();
 }
 
-/* ===== DATA ===== */
+/* ================= LOAD DATA ================= */
 
 function loadData(){
+
   const key = "spirits_" + currentUser;
   let saved = JSON.parse(localStorage.getItem(key));
 
@@ -221,7 +241,7 @@ function loadData(){
   render();
 }
 
-/* ===== RENDER ===== */
+/* ================= RENDER ================= */
 
 function render(){
 
@@ -253,7 +273,7 @@ function render(){
   update();
 }
 
-/* ===== STATS ===== */
+/* ================= STATS ================= */
 
 function update(){
   const done = data.filter(Boolean).length;
@@ -261,10 +281,11 @@ function update(){
     `Usuario: ${currentUser} | Conseguidos: ${done} / ${TOTAL}`;
 }
 
-/* ===== INIT ===== */
+/* ================= INIT ================= */
 
 loadUsers();
 loadData();
+checkMobile();
 
 </script>
 
