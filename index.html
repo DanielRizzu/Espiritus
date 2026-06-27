@@ -2,40 +2,57 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Lista de Espiritus para el Folnite</title>
+<title>Marcador de Espíritus</title>
 
 <style>
-body {
+body{
   background:#111;
   color:white;
   text-align:center;
   font-family:Arial;
 }
 
-#container {
+#container{
   position:relative;
   display:inline-block;
 }
 
-#img {
+#img{
   width:900px;
+  display:block;
 }
 
-.spirit {
+.spirit{
   position:absolute;
   width:18px;
   height:18px;
-  transform:translate(-50%, -50%);
+  transform:translate(-50%,-50%);
   accent-color:lime;
+}
+
+#loginBox{
+  margin:10px;
+}
+
+select,input,button{
+  padding:5px;
+  margin:5px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>El Marcador de Esperitus definitivo del Dani -_- </h2>
+<h2>Marcador de Espíritus</h2>
 
-<div id="stats"></div>
+<div id="loginBox">
+  👤 Usuario:
+  <select id="userSelect"></select>
+  <input id="newUser" placeholder="nuevo usuario">
+  <button onclick="addUser()">Crear</button>
+</div>
+
+<div id="stats">Cargando...</div>
 
 <div id="container">
   <img id="img" src="pokemones.png">
@@ -43,31 +60,102 @@ body {
 
 <script>
 
+/* ===================== CONFIG FIJA (NO TOCAR) ===================== */
+
 const COLS = 12;
 const ROWS = 9;
 const TOTAL = COLS * ROWS;
 
-// progreso
-let data = JSON.parse(localStorage.getItem("spirits")) 
-          || Array(TOTAL).fill(false);
-
-const container = document.getElementById("container");
-
-/* Aca Metemos Configuracion */
-
-/* Filas (Y) */
 const rowConfig = [
   16, 26.4, 37, 47, 57, 68, 78, 88, 98
 ];
 
-/* Columnas (X) */
 const colConfig = [
   7, 14, 21.4, 28.5, 35.7, 43, 55, 61.9, 69.3, 76.5, 83.5, 90.5
 ];
 
-function create() {
+/* ===================== ELEMENTOS ===================== */
 
-  for (let i = 0; i < TOTAL; i++) {
+const container = document.getElementById("container");
+const userSelect = document.getElementById("userSelect");
+const stats = document.getElementById("stats");
+const newUser = document.getElementById("newUser");
+
+/* ===================== USUARIOS ===================== */
+
+let users = JSON.parse(localStorage.getItem("usersList") || "[]");
+let currentUser = localStorage.getItem("currentUser") || "guest";
+
+if(!users.includes("guest")){
+  users.push("guest");
+  localStorage.setItem("usersList", JSON.stringify(users));
+}
+
+/* ===================== DATA ===================== */
+
+let data = [];
+
+/* ===================== USERS UI ===================== */
+
+function loadUsers(){
+  userSelect.innerHTML = "";
+
+  users.forEach(u=>{
+    const opt = document.createElement("option");
+    opt.value = u;
+    opt.textContent = u;
+    if(u === currentUser) opt.selected = true;
+    userSelect.appendChild(opt);
+  });
+}
+
+userSelect.addEventListener("change",()=>{
+  currentUser = userSelect.value;
+  localStorage.setItem("currentUser", currentUser);
+  loadData();
+});
+
+/* ===================== CREAR USUARIO ===================== */
+
+function addUser(){
+  const name = newUser.value.trim();
+  if(!name) return;
+
+  if(!users.includes(name)){
+    users.push(name);
+    localStorage.setItem("usersList", JSON.stringify(users));
+  }
+
+  currentUser = name;
+  localStorage.setItem("currentUser", currentUser);
+
+  loadUsers();
+  loadData();
+}
+
+/* ===================== LOAD DATA ===================== */
+
+function loadData(){
+
+  const key = "spirits_" + currentUser;
+  let saved = JSON.parse(localStorage.getItem(key));
+
+  if(!Array.isArray(saved) || saved.length !== TOTAL){
+    saved = Array(TOTAL).fill(false);
+  }
+
+  data = saved;
+
+  render();
+}
+
+/* ===================== RENDER ===================== */
+
+function render(){
+
+  container.querySelectorAll(".spirit").forEach(e=>e.remove());
+
+  for(let i=0;i<TOTAL;i++){
 
     const row = Math.floor(i / COLS);
     const col = i % COLS;
@@ -76,30 +164,36 @@ function create() {
     cb.type = "checkbox";
     cb.className = "spirit";
 
-    // Posicion Completamente Independiente
+    /* 🔥 TU SISTEMA ORIGINAL (INTACTO) */
     cb.style.left = colConfig[col] + "%";
-    cb.style.top  = rowConfig[row] + "%";
+    cb.style.top = rowConfig[row] + "%";
 
     cb.checked = data[i];
 
-    cb.addEventListener("change", () => {
+    cb.addEventListener("change",()=>{
       data[i] = cb.checked;
-      localStorage.setItem("spirits", JSON.stringify(data));
+      localStorage.setItem("spirits_" + currentUser, JSON.stringify(data));
       update();
     });
 
     container.appendChild(cb);
   }
+
+  update();
 }
 
-function update() {
+/* ===================== STATS ===================== */
+
+function update(){
   const done = data.filter(Boolean).length;
-  document.getElementById("stats").innerText =
-    `Conseguidos: ${done} / ${TOTAL}`;
+  stats.textContent =
+    `Usuario: ${currentUser} | Conseguidos: ${done} / ${TOTAL}`;
 }
 
-create();
-update();
+/* ===================== INIT ===================== */
+
+loadUsers();
+loadData();
 
 </script>
 
