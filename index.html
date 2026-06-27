@@ -14,13 +14,12 @@ body{
   overflow:hidden;
 }
 
-/* ===== TITULO ===== */
 h2{
   margin:6px 0 4px 0;
   font-size:22px;
 }
 
-/* ===== PANEL USUARIO (PC) ===== */
+/* ===== PANEL ===== */
 #loginBox{
   position:fixed;
   top:10px;
@@ -41,6 +40,18 @@ select,input,button{
   box-sizing:border-box;
 }
 
+/* BOTÓN BORRAR */
+#deleteBtn{
+  background:#b30000;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+#deleteBtn:hover{
+  background:#ff0000;
+}
+
 /* ===== MAPA ===== */
 #container{
   position:relative;
@@ -53,7 +64,7 @@ select,input,button{
   display:block;
 }
 
-/* ===== CHECKBOXES ===== */
+/* CHECKBOXES */
 .spirit{
   position:absolute;
   width:18px;
@@ -62,31 +73,16 @@ select,input,button{
   accent-color:lime;
 }
 
-/* ===== RESPONSIVE MOBILE / TABLET ===== */
-@media (max-width: 768px) {
-
-  body{
-    overflow:auto;
-  }
+/* RESPONSIVE */
+@media (max-width: 768px){
+  body{ overflow:auto; }
 
   #loginBox{
     position:relative;
-    top:auto;
-    left:auto;
     margin:10px auto;
     width:90%;
-    text-align:center;
-  }
-
-  select,input,button{
-    width:100%;
-  }
-
-  #container{
-    margin-top:10px;
   }
 }
-
 </style>
 </head>
 
@@ -94,7 +90,6 @@ select,input,button{
 
 <h2>Marcador de Espíritus</h2>
 
-<!-- PANEL USUARIO -->
 <div id="loginBox">
   👤 Usuario:
   <select id="userSelect"></select>
@@ -102,17 +97,18 @@ select,input,button{
   <input id="newUser" placeholder="nuevo usuario">
   <button onclick="addUser()">Crear</button>
 
+  <button id="deleteBtn" onclick="deleteUser()">Eliminar usuario</button>
+
   <div id="stats" style="margin-top:10px;">Cargando...</div>
 </div>
 
-<!-- MAPA -->
 <div id="container">
   <img id="img" src="pokemones.png">
 </div>
 
 <script>
 
-/* ================= CONFIG ORIGINAL ================= */
+/* ===== CONFIG ===== */
 
 const COLS = 12;
 const ROWS = 9;
@@ -126,14 +122,14 @@ const colConfig = [
   7, 14, 21.4, 28.5, 35.7, 43, 55, 61.9, 69.3, 76.5, 83.5, 90.5
 ];
 
-/* ================= ELEMENTOS ================= */
+/* ===== ELEMENTOS ===== */
 
 const container = document.getElementById("container");
 const userSelect = document.getElementById("userSelect");
 const newUser = document.getElementById("newUser");
 const stats = document.getElementById("stats");
 
-/* ================= USUARIOS ================= */
+/* ===== USERS ===== */
 
 let users = JSON.parse(localStorage.getItem("usersList") || "[]");
 let currentUser = localStorage.getItem("currentUser") || "guest";
@@ -143,11 +139,11 @@ if(!users.includes("guest")){
   localStorage.setItem("usersList", JSON.stringify(users));
 }
 
-/* ================= DATA ================= */
+/* ===== DATA ===== */
 
 let data = [];
 
-/* ================= USERS ================= */
+/* ===== LOAD USERS ===== */
 
 function loadUsers(){
   userSelect.innerHTML = "";
@@ -167,7 +163,7 @@ userSelect.addEventListener("change",()=>{
   loadData();
 });
 
-/* ================= CREATE USER ================= */
+/* ===== ADD USER ===== */
 
 function addUser(){
   const name = newUser.value.trim();
@@ -185,7 +181,33 @@ function addUser(){
   loadData();
 }
 
-/* ================= LOAD DATA ================= */
+/* ===== DELETE USER ===== */
+
+function deleteUser(){
+
+  if(currentUser === "guest"){
+    alert("No puedes borrar el usuario guest");
+    return;
+  }
+
+  if(!confirm(`¿Seguro que quieres borrar a ${currentUser}?`)) return;
+
+  // borrar usuario de lista
+  users = users.filter(u => u !== currentUser);
+  localStorage.setItem("usersList", JSON.stringify(users));
+
+  // borrar su progreso
+  localStorage.removeItem("spirits_" + currentUser);
+
+  // cambiar a guest
+  currentUser = "guest";
+  localStorage.setItem("currentUser", currentUser);
+
+  loadUsers();
+  loadData();
+}
+
+/* ===== DATA ===== */
 
 function loadData(){
   const key = "spirits_" + currentUser;
@@ -199,7 +221,7 @@ function loadData(){
   render();
 }
 
-/* ================= RENDER ================= */
+/* ===== RENDER ===== */
 
 function render(){
 
@@ -231,7 +253,7 @@ function render(){
   update();
 }
 
-/* ================= STATS ================= */
+/* ===== STATS ===== */
 
 function update(){
   const done = data.filter(Boolean).length;
@@ -239,7 +261,7 @@ function update(){
     `Usuario: ${currentUser} | Conseguidos: ${done} / ${TOTAL}`;
 }
 
-/* ================= INIT ================= */
+/* ===== INIT ===== */
 
 loadUsers();
 loadData();
