@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Marcador de Espíritus</title>
+<title>Dani Marcador</title>
 
 <style>
 body{
@@ -76,22 +76,22 @@ select,input,button{
 
 <body>
 
-<h2>Marcador de Espíritus</h2>
+<h2>Marcador de Pokemones fornite -_- </h2>
 
 <!-- MAPA -->
 <div id="container">
   <img id="img" src="pokemones.png">
 </div>
 
-<!-- LOGIN -->
+<!-- Usuarios -->
 <div id="loginBox">
   👤 Usuario:
   <select id="userSelect"></select>
 
-  <input id="newUser" placeholder="nuevo usuario">
+  <input id="newUser" placeholder="Nuevo Usuario">
   <button onclick="addUser()">Crear</button>
 
-  <button id="deleteBtn" onclick="deleteUser()">Eliminar usuario</button>
+  <button id="deleteBtn" onclick="deleteUser()">Eliminar Usuario</button>
 
   <div id="stats" style="margin-top:10px;">Cargando...</div>
 </div>
@@ -120,7 +120,7 @@ const userSelect = document.getElementById("userSelect");
 const newUser = document.getElementById("newUser");
 const stats = document.getElementById("stats");
 
-/* ================= USERS ================= */
+/* ================= USUARIOS ================= */
 
 let users = JSON.parse(localStorage.getItem("usersList") || "[]");
 let currentUser = localStorage.getItem("currentUser") || "guest";
@@ -133,13 +133,12 @@ if(!users.includes("guest")){
 
 let data = [];
 
-/* ================= 🔥 FIX TECLADO + RESPONSIVE REAL ================= */
+/* ================= RESPONSIVE + FIX TECLADO ================= */
 
 function checkMobile(){
 
   const w = window.innerWidth;
 
-  // 🚫 SI ESTÁ ESCRIBIENDO, NO MOVER NADA (FIX TECLADO)
   if(document.activeElement.tagName === "INPUT") return;
 
   if(w < 1300){
@@ -168,7 +167,6 @@ function checkMobile(){
   }
 }
 
-/* debounce resize */
 let resizeTimeout;
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimeout);
@@ -244,7 +242,7 @@ function loadData(){
   let saved = JSON.parse(localStorage.getItem(key));
 
   if(!Array.isArray(saved) || saved.length !== TOTAL){
-    saved = Array(TOTAL).fill(false);
+    saved = Array(TOTAL).fill(0);
   }
 
   data = saved;
@@ -266,15 +264,32 @@ function render(){
     cb.type = "checkbox";
     cb.className = "spirit";
 
+    const state = data[i] || 0;
+
     cb.style.left = colConfig[col] + "%";
     cb.style.top = rowConfig[row] + "%";
 
-    cb.checked = data[i];
+    if(state === 1){
+      cb.checked = true;
+      cb.style.accentColor = "lime";
+    }
+    else if(state === 2){
+      cb.checked = true;
+      cb.style.accentColor = "gold";
+    }
+    else{
+      cb.checked = false;
+    }
 
     cb.addEventListener("change",()=>{
-      data[i] = cb.checked;
+
+      let s = data[i] || 0;
+      s = (s + 1) % 3;
+      data[i] = s;
+
       localStorage.setItem("spirits_" + currentUser, JSON.stringify(data));
       update();
+      render(); // refresca color
     });
 
     container.appendChild(cb);
@@ -286,9 +301,9 @@ function render(){
 /* ================= STATS ================= */
 
 function update(){
-  const done = data.filter(Boolean).length;
+  const done = data.filter(x => x > 0).length;
   stats.textContent =
-    `Usuario: ${currentUser} | Conseguidos: ${done} / ${TOTAL}`;
+    `Usuario: ${currentUser} | Marcados: ${done} / ${TOTAL}`;
 }
 
 /* ================= INIT ================= */
